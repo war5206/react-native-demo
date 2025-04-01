@@ -1,7 +1,28 @@
 // screens/HomeScreen.tsx
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { Audio } from 'expo-av';
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = () => {
+  const [status, setStatus] = useState('等待点击播放');
+
+  const handlePlay = async () => {
+    setStatus('已点击，5秒后播放');
+
+    setTimeout(async () => {
+      try {
+        const { sound } = await Audio.Sound.createAsync({
+          uri: 'https://cas.micoe.com/cas-miniprogram/gaga.wav',
+        });
+        await sound.playAsync();
+        setStatus('正在播放...');
+      } catch (error) {
+        console.error('播放失败:', error);
+        setStatus('播放失败');
+      }
+    }, 5000);
+  };
+
   const buttons = [
     '招标顾问', 
     '合同顾问',
@@ -24,6 +45,9 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
+
+      <Button title="点击开始播放" onPress={handlePlay} />
+      <Text style={styles.status}>{status}</Text>
     </View>
   );
 };
@@ -63,7 +87,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     color: '#333'
-  }
+  },
+  
+  status: {
+    marginTop: 20,
+    fontSize: 16,
+  },
 });
 
 export default HomeScreen;
